@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jeremie Awolou — 3D Designer</title>
+<meta name="description" content="3D designer focused on product visuals and motion, with a background in graphic design.">
+<meta property="og:title" content="Jeremie Awolou — 3D Designer">
+<meta property="og:description" content="Good products deserve to be seen. I make sure they are.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+/* One shared column grid: the top row is both menu and column header; projects sit on the same columns. */
+:root{
+  --paper:#FFFFFF;
+  --ink:#111111;
+  --rule:#1A1A1A;
+  --tile:#F2F2F0;
+  --serif:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sans:"Geist", "Helvetica Neue", Arial, sans-serif;
+  --pad:2.5%;
+  /* columns: home | + | client | details | num | (empty) | (empty) | info */
+  --cols:10.9% 10.6% 11% 28% 4.5% 10.5% 11% 1fr;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:clamp(11px,1.15vw,14px);line-height:1.35;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+a:focus-visible{outline:1px solid var(--ink);outline-offset:3px}
+p{margin:0}
+img{display:block;width:100%;height:auto}
+.cap{font-family:var(--serif);text-transform:uppercase;letter-spacing:.06em;font-size:clamp(9px,.95vw,12px)}
+.row{display:grid;grid-template-columns:var(--cols);padding:0 var(--pad);align-items:start}
+
+/* Top row */
+.top{padding-top:clamp(20px,2.6vw,34px);padding-bottom:clamp(20px,2.6vw,34px);position:sticky;top:0;background:transparent;z-index:5;color:#fff;mix-blend-mode:difference;pointer-events:none}
+.top a{pointer-events:auto}
+.top a:hover{opacity:.55}
+.dot::after{content:" •"}
+
+/* Project list */
+.opening{padding-top:clamp(24px,4vw,56px)}
+.big{font-size:clamp(17px,2.05vw,26px);line-height:1.3;letter-spacing:.01em}
+.i-link{text-decoration:underline;text-underline-offset:.15em;text-decoration-thickness:1px}
+.i-link:hover{opacity:.55}
+.project{margin-top:clamp(40px,6vw,80px);scroll-margin-top:90px}
+.home .project:first-child{margin-top:clamp(56px,8vw,110px)}
+.home{padding-bottom:clamp(96px,12vw,160px)}
+.project + .project{margin-top:clamp(140px,22vw,300px)}
+.plus{font-family:var(--sans);font-size:clamp(16px,1.8vw,22px);line-height:.8;font-weight:300}
+.pics{grid-column:3 / 9;display:grid;grid-template-columns:1fr 1fr;gap:3.8%;align-items:end;margin-top:clamp(20px,2.6vw,32px)}
+.pics img,.pics video,.more video{display:block;width:100%;height:auto}
+video{background:var(--tile)}
+.pics img{transition:opacity .3s ease}
+.toggle{all:unset;cursor:pointer;display:contents}
+.toggle:focus-visible .plus{outline:1px solid var(--ink);outline-offset:4px}
+.toggle:hover .client{opacity:.55}
+.fiche{display:none}
+.project.open .summary{display:none}
+.project.open .fiche{display:grid}
+.fiche{grid-column:3 / 7;gap:clamp(10px,1.4vw,16px)}
+.fiche .meta{display:grid;grid-template-columns:minmax(70px,18%) minmax(0,1fr);gap:2px 16px}
+.fiche .meta .k{font-family:var(--serif);text-transform:uppercase;letter-spacing:.06em;font-size:clamp(9px,.95vw,12px);color:#8C8C88;padding-top:.2em}
+.more{display:none}
+.project.open .more{display:grid}
+.more{grid-column:3 / 9;grid-template-columns:1fr 1fr;gap:3.8%;row-gap:clamp(16px,2.4vw,32px);margin-top:clamp(16px,2.4vw,32px);align-items:end}
+.more .ctx{grid-column:1 / -1;color:#8C8C88}
+.more .full,.pics .full{grid-column:1 / -1}
+.m{position:relative;cursor:zoom-in}
+.m img,.m video{display:block;width:100%;height:auto}
+.snd{position:absolute;right:12px;bottom:12px;font-family:var(--serif);text-transform:uppercase;letter-spacing:.06em;font-size:11px;background:rgba(255,255,255,.9);color:var(--ink);border:0;padding:6px 9px;cursor:pointer}
+.lb{position:fixed;inset:0;z-index:50;background:rgba(255,255,255,.97);display:none;align-items:center;justify-content:center;cursor:zoom-out}
+.lb.on{display:flex}
+.lb .stage{max-width:calc(100vw - 2*var(--pad));max-height:calc(100vh - 120px);display:flex}
+.lb .stage img,.lb .stage video{max-width:calc(100vw - 2*var(--pad));max-height:calc(100vh - 120px);width:auto;height:auto;object-fit:contain;display:block}
+.lb .ui{position:fixed;left:0;right:0;padding:0 var(--pad);display:flex;justify-content:space-between;font-family:var(--serif);text-transform:uppercase;letter-spacing:.06em;font-size:12px}
+.lb .ui.t{top:24px}.lb .ui.b{bottom:24px}
+.lb button{all:unset;cursor:pointer}
+.lb button:focus-visible{outline:1px solid var(--ink);outline-offset:4px}
+body.lb-open{overflow:hidden}
+@media (prefers-reduced-motion: reduce){.pics img{transition:none}}
+
+/* Info */
+.info{display:none}
+body.show-info .home{display:none}
+body.show-info .info{display:block}
+body.show-info footer{display:flex}
+body.show-info #nav-name{visibility:hidden}
+.info-body{padding:0 var(--pad)}
+.info-body hr{border:0;border-top:1px solid var(--rule);margin:0}
+.info-body .lead{font-size:clamp(17px,2.05vw,26px);line-height:1.3;letter-spacing:.01em;padding:clamp(32px,4.5vw,64px) 0;max-width:62ch}
+.info-body .lead p + p{margin-top:1.1em}
+.list{margin-top:clamp(36px,5vw,64px)}
+.list .cap{margin-bottom:clamp(14px,2vw,22px);font-size:clamp(12px,1.25vw,15px)}
+.list p,.list a{display:block;font-size:clamp(17px,2.05vw,26px);line-height:1.3;letter-spacing:.01em;width:fit-content}
+.list a:hover{opacity:.55}
+.list .d{color:#8C8C88;font-size:clamp(14px,1.5vw,19px);margin-bottom:.6em}
+.crow{display:grid;grid-template-columns:minmax(110px,14%) minmax(0,1fr);gap:0 24px;align-items:baseline}
+.crow + .crow{margin-top:6px}
+.list .crow p{width:auto}
+.crow .k{color:#8C8C88}
+.crow .v{display:flex;align-items:center;gap:14px;flex-wrap:nowrap;font-size:clamp(17px,2.05vw,26px);line-height:1.3;letter-spacing:.01em;min-width:0}
+.crow .v span.val{overflow-wrap:anywhere}
+.ic{all:unset;display:inline-flex;align-items:center;justify-content:center;width:1.1em;height:1.1em;cursor:pointer;color:var(--ink)}
+.ic svg{width:.72em;height:.72em;display:block}
+.ic:hover{opacity:.55}
+.ic:focus-visible{outline:1px solid var(--ink);outline-offset:3px}
+.copied{font-family:var(--serif);text-transform:uppercase;letter-spacing:.06em;font-size:11px;color:#8C8C88;opacity:0;transition:opacity .2s}
+.copied.on{opacity:1}
+
+/* Project page */
+.single .crumb{padding:0 var(--pad)}
+.single .gallery{grid-column:2 / 7;display:grid;grid-template-columns:1fr 1fr;gap:3.8%;row-gap:clamp(16px,2.4vw,32px);margin-top:clamp(20px,2.6vw,32px)}
+.single .gallery .wide{grid-column:1 / -1}
+
+footer{display:none;justify-content:space-between;gap:16px;padding:clamp(120px,18vw,240px) var(--pad) 28px}
+footer a:hover{opacity:.55}
+
+/* Phone: three columns (number | content | toggle), images full width — as in the Figma mobile frames */
+@media (max-width:640px){
+  :root{--pad:16px}
+  body{font-size:14px}
+  .cap{font-size:11px}
+  .row{grid-template-columns:28px minmax(0,1fr) 28px}
+  .top{grid-template-columns:28px minmax(0,1fr) auto;row-gap:10px;padding-top:22px;padding-bottom:22px}
+  #nav-home{grid-column:1 / 3 !important;grid-row:1}
+  #nav-info{grid-column:3 / 4 !important;grid-row:1;justify-self:end;white-space:nowrap}
+  #nav-name{grid-column:2 / 4 !important;grid-row:2}
+  body.show-info #nav-name{display:none}
+  .opening p{grid-column:2 / 4 !important;font-size:20px}
+  .toggle > span:first-child{grid-column:1 !important;grid-row:1}
+  .toggle .client{grid-column:2 !important;grid-row:1}
+  .toggle div.summary{grid-column:2 !important;grid-row:2;margin-top:4px}
+  .toggle .fiche{grid-column:2 / 4 !important;grid-row:1}
+  .toggle .plus{grid-column:3 !important;grid-row:1;justify-self:end}
+  .fiche .meta{grid-template-columns:84px minmax(0,1fr)}
+  .pics,.more{grid-column:1 / -1 !important;gap:10px;row-gap:10px}
+  .project + .project{margin-top:120px}
+  .info-body .lead,.list p,.list a{font-size:20px}
+  .list .d{font-size:15px}
+  .crow{grid-template-columns:76px minmax(0,1fr);gap:0 10px}
+  .crow .v{font-size:16px;gap:8px}
+  .list .crow p{font-size:16px}
+  footer{flex-direction:column;gap:6px;padding-top:120px}
+}
+</style>
+</head>
+<body>
+
+<header class="row top">
+  <a class="cap" href="#" id="nav-home">Home</a>
+  <a class="cap" id="nav-name" href="#" style="grid-column:3 / 8">Jeremie Awolou, 3D Designer</a>
+  <a class="cap" href="#info" id="nav-info" style="grid-column:8">Info</a>
+</header>
+
+<main class="home">
+  <div class="row opening"><p class="big" style="grid-column:3 / 8">Good products deserve to be seen. <a class="i-link" href="#info">I</a> make sure they are.</p></div>
+  <div id="list"></div>
+</main>
+
+<main class="info">
+  <div class="info-body">
+    <p class="big" style="padding:clamp(24px,4vw,56px) 0 clamp(28px,4vw,48px)">Jeremie Awolou<br><span style="color:#8C8C88">3D Designer</span></p>
+    <hr>
+    <div class="lead">
+      <p>I'm a 3D designer focused on product visuals and motion, with a background in graphic design. I've worked with brands across beauty, CPG and lifestyle, creating visuals for social media, campaigns, e-commerce and launches.</p>
+      <p><a id="cta" href="#" style="text-decoration:underline;text-underline-offset:.15em;text-decoration-thickness:1px">Let's work together.</a></p>
+    </div>
+    <hr>
+    <div class="list"><p class="cap">Services</p>
+      <p>Product imagery</p><p class="d">3D key visuals and product shots for social media, your website and ads.</p>
+      <p>Product animation</p><p class="d">Short 3D animations for social media, campaigns and launches.</p>
+      <p>Art direction</p><p class="d">Concept and visual direction, so every image fits your brand.</p>
+      <p>Design</p><p class="d">Layouts, typography and ready-to-post assets built around your visuals.</p>
+    </div>
+    <div class="list"><p class="cap">Contact</p><div id="contact"></div></div>
+  </div>
+</main>
+
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Image viewer">
+  <div class="ui t"><span id="lb-count"></span><button id="lb-close" type="button">Close</button></div>
+  <div class="stage" id="lb-stage"></div>
+  <div class="ui b"><button id="lb-prev" type="button">Previous</button><button id="lb-next" type="button">Next</button></div>
+</div>
+
+<footer class="cap info-only"><span>© Jeremie Awolou, <span class="yr"></span>. All Rights Reserved</span><span>Benin, <span id="clock">--:--</span> GMT+1</span></footer>
+
+<script>
+const CONFIG = {
+  email: "jeremieawolou@gmail.com",
+  linkedin: "https://www.linkedin.com/in/jeremieawolou",
+  instagram: "https://www.instagram.com/jeremieawolou"
+};
+const PROJECTS = [{"slug": "stoic", "title": "STOIC", "context": "3D launch visuals for a new supplement brand.", "client": "STOIC", "service": "Product imagery", "usage": "Launch, website, social media", "year": "2026", "media": [{"type": "image", "src": "media/stoic/01-stoic-pouch-hero-cherry-lime.jpg", "w": 1800, "h": 2400}, {"type": "image", "src": "media/stoic/02-stoic-stick-packshot.jpg", "w": 1800, "h": 2400}, {"type": "video", "src": "media/stoic/03-stoic-motion.mp4", "w": 1728, "h": 2304, "sound": false}, {"type": "image", "src": "media/stoic/04-stoic-pouch-detail.jpg", "w": 1800, "h": 2400}, {"type": "image", "src": "media/stoic/05-stoic-pouch-stick-hero-watermelon.jpg", "w": 1800, "h": 2400}, {"type": "image", "src": "media/stoic/06-stoic-stick-detail-label-cherry-lime.jpg", "w": 2400, "h": 1600}, {"type": "image", "src": "media/stoic/07-stoic-stick-detail-macro.jpg", "w": 1800, "h": 2400}, {"type": "image", "src": "media/stoic/08-stoic-pouch-detail-macro.jpg", "w": 1800, "h": 2400}]}, {"slug": "house-of-braid", "title": "House of Braid", "context": "3D social content for a hair care brand.", "client": "House of Braid", "service": "Art direction, Product imagery, Product animation", "usage": "Social media", "year": "2025", "media": [{"type": "image", "src": "media/house-of-braid/01-hob-gel-comb.jpg", "w": 1800, "h": 2400}, {"type": "image", "src": "media/house-of-braid/02-hob-comb-hair-strand.jpg", "w": 1800, "h": 2400}, {"type": "video", "src": "media/house-of-braid/03-hob-motion.mp4", "w": 2160, "h": 2880, "sound": true}, {"type": "image", "src": "media/house-of-braid/04-hob-comb-chrome.jpg", "w": 1800, "h": 2400}, {"type": "image", "src": "media/house-of-braid/05-hob-gel-stack-comb-hero.jpg", "w": 1800, "h": 2400}, {"type": "image", "src": "media/house-of-braid/06-stoic.jpg", "w": 1800, "h": 2250}]}, {"slug": "ode", "title": "ODE", "context": "3D visuals and motion for a natural aperitif.", "client": "", "service": "Art direction, Product imagery, Product animation", "usage": "Personal exploration", "year": "2025", "media": [{"type": "image", "src": "media/ode/02-0de.jpg", "w": 1800, "h": 2250}, {"type": "video", "src": "media/ode/03-motion-ode.mp4", "w": 2160, "h": 2700, "sound": false}, {"type": "image", "src": "media/ode/01-ode.jpg", "w": 1800, "h": 1800}, {"type": "image", "src": "media/ode/04-ode.jpg", "w": 1800, "h": 1800}, {"type": "image", "src": "media/ode/05-ode.jpg", "w": 1800, "h": 1800}]}, {"slug": "haven", "title": "Haven", "context": "Visual identity and motion for an app that helps farmers diagnose their crops.", "client": "", "service": "Brand identity, Motion design", "usage": "Personal exploration", "year": "2026", "media": [{"type": "video", "src": "media/haven/01-haven.mp4", "w": 2870, "h": 1944, "sound": false}, {"type": "image", "src": "media/haven/04-haven.jpg", "w": 2400, "h": 1626}, {"type": "image", "src": "media/haven/02-haven.jpg", "w": 1700, "h": 2304}, {"type": "video", "src": "media/haven/05-haven.mp4", "w": 1700, "h": 2304, "sound": false}, {"type": "image", "src": "media/haven/07-haven.jpg", "w": 2400, "h": 1626}, {"type": "image", "src": "media/haven/06-haven.jpg", "w": 1700, "h": 2304}]}];
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s || "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const isWide = m => m.w >= m.h * 1.15;
+let MEDIA = [];
+function tag(m, lazy, full){
+  const id = MEDIA.push(m) - 1;
+  const dims = `width="${m.w}" height="${m.h}"`;
+  const inner = m.type === "video"
+    ? `<video ${dims} src="${m.src}" muted autoplay loop playsinline preload="auto" disablepictureinpicture disableremoteplayback></video>${m.sound ? `<button class="snd" type="button" aria-pressed="false">Sound on</button>` : ""}`
+    : `<img ${dims} src="${m.src}" alt="" ${lazy ? 'loading="lazy"' : ""} decoding="async">`;
+  return `<div class="m${full ? " full" : ""}" data-i="${id}" role="button" tabindex="0" aria-label="View larger">${inner}</div>`;
+}
+/* Layout of the expanded images: landscapes take the full width; runs of portraits/squares
+   pair up, an odd run opens with one full-width image, a run of 4+ also closes with one. */
+function layout(list){
+  const out = []; let run = [];
+  const flush = () => {
+    const n = run.length; if (!n) return;
+    let i = 0;
+    if (n % 2 === 1) out.push([run[i++], true]);
+    const closeFull = n % 2 === 0 && n >= 4;
+    for (; i < n; i++) out.push([run[i], closeFull && i === n - 1]);
+    run = [];
+  };
+  list.forEach(m => { if (isWide(m)) { flush(); out.push([m, true]); } else run.push(m); });
+  flush();
+  return out;
+}
+function playAll(root){
+  root.querySelectorAll("video").forEach(v => { if (!v.dataset.unmuted) { v.muted = true; v.defaultMuted = true; } const p = v.play(); if (p) p.catch(() => {}); });
+}
+function renderList(){
+  MEDIA = [];
+  $("#list").innerHTML = PROJECTS.map((p, i) => {
+    const meta = [["Client", p.client], ["Service", p.service], ["Usage", p.usage], ["Year", p.year]]
+      .filter(r => r[1]).map(r => `<span class="k">${r[0]}</span><span>${esc(r[1])}</span>`).join("");
+    const cover = isWide(p.media[0]);
+    const lead = cover ? p.media.slice(0, 1) : p.media.slice(0, 2);
+    const rest = p.media.slice(lead.length);
+    return `
+    <section class="project" id="p-${p.slug}">
+      <div class="row">
+        <button class="toggle" aria-expanded="false" aria-controls="more-${i}">
+          <span style="grid-column:2">${i + 1}</span>
+          <span class="cap client summary" style="grid-column:3">${esc(p.title)}</span>
+          <div class="summary" style="grid-column:4 / 6"><p>${esc(p.service)}</p><p>${esc(p.usage)}</p></div>
+          <div class="fiche">
+            <div><p class="cap">${esc(p.title)}</p>${p.context ? `<p style="margin-top:6px">${esc(p.context)}</p>` : ""}</div>
+            <div class="meta">${meta}</div>
+          </div>
+          <span class="plus" style="grid-column:8">+</span>
+        </button>
+      </div>
+      <div class="row"><div class="pics">${lead.map(m => tag(m, i > 1, cover)).join("")}</div></div>
+      <div class="row"><div class="more" id="more-${i}">${layout(rest).map(([m, full]) => tag(m, true, full)).join("")}</div></div>
+    </section>`;
+  }).join("");
+  playAll(document);
+  document.querySelectorAll(".toggle").forEach(b => b.addEventListener("click", () => {
+    const sec = b.closest(".project");
+    const open = sec.classList.toggle("open");
+    b.setAttribute("aria-expanded", open);
+    b.querySelector(".plus").textContent = open ? "−" : "+";
+    if (open) playAll(sec);
+    sec.scrollIntoView({block: "start"});
+  }));
+  document.querySelectorAll(".snd").forEach(btn => btn.addEventListener("click", e => {
+    e.stopPropagation();
+    const v = btn.parentElement.querySelector("video");
+    v.muted = !v.muted; v.dataset.unmuted = v.muted ? "" : "1";
+    btn.textContent = v.muted ? "Sound on" : "Sound off"; btn.setAttribute("aria-pressed", !v.muted);
+    v.play().catch(() => {});
+  }));
+  document.querySelectorAll(".m").forEach(el => {
+    el.addEventListener("click", () => openLB(+el.dataset.i, el));
+    el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLB(+el.dataset.i, el); } });
+  });
+}
+
+/* Lightbox: click any image or video to see it large; arrows/swipe move within the same project. */
+let LB = {i: 0, list: [], from: null};
+function openLB(id, from){
+  const sec = from.closest(".project");
+  const els = [...sec.querySelectorAll(".m")].filter(e => e.offsetParent !== null);
+  LB = {list: els.map(e => +e.dataset.i), i: els.indexOf(from), from};
+  $("#lb").classList.add("on"); document.body.classList.add("lb-open");
+  showLB(); $("#lb-close").focus();
+}
+function showLB(){
+  const m = MEDIA[LB.list[LB.i]];
+  $("#lb-stage").innerHTML = m.type === "video"
+    ? `<video src="${m.src}" ${m.sound ? "" : "muted"} autoplay loop playsinline controls></video>`
+    : `<img src="${m.src}" alt="">`;
+  $("#lb-count").textContent = `${LB.i + 1} / ${LB.list.length}`;
+  const v = $("#lb-stage video"); if (v) v.play().catch(() => {});
+}
+function stepLB(d){ LB.i = (LB.i + d + LB.list.length) % LB.list.length; showLB(); }
+function closeLB(){
+  $("#lb").classList.remove("on"); document.body.classList.remove("lb-open");
+  $("#lb-stage").innerHTML = ""; if (LB.from) LB.from.focus();
+}
+function setupLB(){
+  const lb = $("#lb");
+  lb.addEventListener("click", e => { if (!e.target.closest("button") && !e.target.closest("video")) closeLB(); });
+  $("#lb-close").addEventListener("click", closeLB);
+  $("#lb-prev").addEventListener("click", e => { e.stopPropagation(); stepLB(-1); });
+  $("#lb-next").addEventListener("click", e => { e.stopPropagation(); stepLB(1); });
+  addEventListener("keydown", e => {
+    if (!lb.classList.contains("on")) return;
+    if (e.key === "Escape") closeLB();
+    if (e.key === "ArrowRight") stepLB(1);
+    if (e.key === "ArrowLeft") stepLB(-1);
+  });
+  let x0 = null;
+  lb.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, {passive: true});
+  lb.addEventListener("touchend", e => {
+    if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if (Math.abs(dx) > 50) stepLB(dx < 0 ? 1 : -1);
+  });
+}
+
+const ICON_ARROW = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5"/></svg>';
+const ICON_COPY = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="5" y="5" width="9" height="9"/><path d="M11 5V2H2v9h3"/></svg>';
+function renderInfo(){
+  const rows = [
+    {k: "Email", val: CONFIG.email, href: "mailto:" + CONFIG.email, copy: true, label: "Write an email"},
+    {k: "LinkedIn", val: "@jeremieawolou", href: CONFIG.linkedin, label: "Open LinkedIn"},
+    {k: "Instagram", val: "@jeremieawolou", href: CONFIG.instagram, label: "Open Instagram"}
+  ];
+  $("#contact").innerHTML = rows.map(r => `<div class="crow"><p class="k">${r.k}</p><div class="v">
+      <span class="val">${esc(r.val)}</span>
+      ${r.copy ? `<button class="ic copy" type="button" data-copy="${esc(r.val)}" aria-label="Copy email address" title="Copy">${ICON_COPY}</button>` : ""}
+      <a class="ic" href="${esc(r.href)}" ${r.copy ? "" : 'target="_blank" rel="noopener"'} aria-label="${r.label}" title="${r.label}">${ICON_ARROW}</a>
+      ${r.copy ? `<span class="copied" aria-live="polite"></span>` : ""}
+    </div></div>`).join("");
+  document.querySelectorAll(".copy").forEach(b => b.addEventListener("click", async () => {
+    const text = b.dataset.copy, note = b.parentElement.querySelector(".copied");
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {
+      try { const t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select(); ok = document.execCommand("copy"); t.remove(); } catch (e2) {}
+    }
+    note.textContent = ok ? "Copied" : "Select and copy";
+    note.classList.add("on"); clearTimeout(b._t); b._t = setTimeout(() => note.classList.remove("on"), 1600);
+  }));
+}
+
+function route(){
+  const h = location.hash.slice(1);
+  const info = h === "info";
+  document.body.classList.toggle("show-info", info);
+  $("#nav-info").classList.toggle("dot", info); $("#nav-home").classList.toggle("dot", !info);
+  document.title = info ? "Info — Jeremie Awolou" : "Jeremie Awolou — 3D Designer";
+  window.scrollTo(0, 0);
+}
+
+(function init(){
+  document.querySelectorAll(".yr").forEach(e => e.textContent = new Date().getFullYear());
+  const tick = () => { $("#clock").textContent = new Intl.DateTimeFormat("en-GB", {hour: "2-digit", minute: "2-digit", timeZone: "Africa/Porto-Novo"}).format(new Date()); };
+  tick(); setInterval(tick, 15000);
+  $("#cta").href = "mailto:" + CONFIG.email;
+  setupLB();
+  renderList(); renderInfo(); route();
+  addEventListener("hashchange", route);
+})();
+</script>
+</body>
+</html>
